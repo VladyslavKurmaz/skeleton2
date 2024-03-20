@@ -1,0 +1,4 @@
+web: rm -f tmp/pids/server.pid && rdbg -n --open --host 0.0.0.0 --port 5000 -c -- bin/rails s -p new_project_dev_app_port -b '0.0.0.0'
+js: yarn build --watch
+css: yarn build:css --watch
+jobs: bundle exec rails jobs:work

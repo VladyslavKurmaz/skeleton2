@@ -1,0 +1,129 @@
+require:
+  - rubocop
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.1.2
+  TargetRailsVersion: 7.0.1
+  Exclude:
+    - "bin/**/*"
+    - "vendor/**/*"
+    - "public/**/*"
+    - "node_modules/**/*"
+    - "db/schema.rb"
+    - "db/migrate/*"
+
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - staging
+    - development
+    - test
+
+Style/CaseEquality:
+  Enabled: false
+
+Style/Encoding:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: true
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: true
+  EnforcedStyleForMultiline: comma
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - 'config/routes.rb'
+    - 'config/environments/*.rb'
+    - 'spec/**/*.rb'
+    - 'db/**/*.rb'
+
+Metrics/ClassLength:
+  Exclude:
+    - 'app/models/**/*.rb'
+    - 'db/migrate/*.rb'
+
+Metrics/CyclomaticComplexity:
+  Max: 20
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 40
+  Exclude:
+    - 'spec/system/**/*.rb'
+    - 'db/migrate/*.rb'
+
+Style/Documentation:
+  Enabled: false
+
+Style/OpenStructUse:
+  Enabled: false
+
+Lint/UriEscapeUnescape:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/NumericLiterals:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/MessageChain:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Exclude:
+    - spec/system/**/*.rb
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Rails/LexicallyScopedActionFilter:
+  Enabled: false
+
+Rails/InverseOf:
+  Enabled: false
+
+Rails/FilePath:
+  Exclude:
+    - "spec/cypress/**/*"
+
+Lint/MissingSuper:
+  Exclude:
+    - "app/services/*"
+    - "app/components/**/*"
