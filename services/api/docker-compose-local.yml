@@ -1,0 +1,61 @@
+services:
+  web:
+    container_name: 'new_project_container_prefix-web'
+    stdin_open: true
+    tty: true
+    build: .
+    command: bash -c "foreman start -f Procfile.dev"
+    volumes:
+      - .:/usr/src/app
+      - bundle:/usr/local/bundle
+      - ~/.ssh:/root/.ssh
+    ports:
+      - "new_project_dev_app_port:new_project_dev_app_port"
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - HISTFILE=/usr/src/app/log/.bash_history 
+    depends_on:
+      - db
+    networks:
+      - web_network
+  cypress-web:
+    container_name: 'new_project_container_prefix-cypress-web'
+    profiles: ["test_app"]
+    build: .
+    command: bash -c "rm -f tmp/pids/server-cypress.pid && bin/rails s -p new_project_test_app_port -b '0.0.0.0'"
+    volumes:
+      - .:/usr/src/app
+      - bundle:/usr/local/bundle
+    ports:
+      - "new_project_test_app_port:new_project_test_app_port"
+    env_file:
+      - .env
+    environment:
+      - MEASURE_TEST_COVERAGE=${MEASURE_TEST_COVERAGE:-false}
+      - RAILS_ENV=test
+      - HISTFILE=/usr/src/app/log/.bash_history
+      - PIDFILE=tmp/pids/server-cypress.pid
+    depends_on:
+      - db
+    networks:
+      - cypress_web_network
+  db:
+    container_name: 'new_project_container_prefix-db'
+    image: postgis/postgis:15-3.3
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=tmp_password
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - cypress_web_network
+      - web_network
+volumes:
+  pg_data:
+  bundle:
+networks:
+  cypress_web_network:
+  web_network:

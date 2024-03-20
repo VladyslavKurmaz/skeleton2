@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1, h2, h3 {
+    @apply font-heading text-midnight-blue-800;
+  }
+  body {
+    @apply text-gray-900;
+  }
+  a:focus,
+  a:focus-visible,
+  button:focus,
+  button:focus-visible {
+    @apply ring-0 outline-none;
+  }
+  
+}
+
+@layer components {
+  .notice {
+    @apply text-blue-500 bg-gray-300
+}
+
+.alert {
+    @apply text-yellow-700 bg-yellow-100
+}
+
+.error {
+    @apply text-red-700 bg-red-100 
+}
+
+.success {
+    @apply text-green-500 bg-green-100
+}
+
+  .container {
+    @apply max-w-[1240px];
+  }
+  .progress-ring__circle {
+    @apply stroke-[4px] fill-none  origin-center -rotate-90;
+  }
+  .progress-ring-background {
+    @apply stroke-[4px] fill-none stroke-[#F1F2F3] origin-center;
+  }  
+  .apexcharts-bar-area {
+    stroke-dasharray: 0;
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+  }
+  input.no-ring:focus {
+    outline: none!important;
+    box-shadow: none!important;
+    border-width: 2px;
+  }
+  .switcher {
+    background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 65%, rgba(255,255,255,0) 100%);
+  }
+
+  .tabs button[aria-selected="true"] {
+    @apply !text-primary-600 !border-primary-600 !border-b-2 !outline-none;
+  }
+
+}
+@layer utilities {
+  .shadow-3xl {
+    -webkit-box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  .shadow-rounded {
+    -webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.08);
+  }
+}

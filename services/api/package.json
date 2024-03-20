@@ -1,0 +1,62 @@
+{
+  "name": "app",
+  "private": "true",
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.1",
+    "@hotwired/turbo-rails": "^7.2.4",
+    "autoprefixer": "^10.4.13",
+    "esbuild": "^0.17.2",
+    "flowbite": "^1.6.2",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.2.4"
+  },
+  "scripts": {
+    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets",
+    "build:css": "tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify",
+
+    "dev:build": "docker-compose build",
+    "dev:start": "docker-compose up",
+    "dev:stop": "docker-compose down",
+    "dev:restart": "yarn dev:stop && yarn dev:start",
+    "dev:console": "docker-compose run --rm web bash",
+    "dev:yarn:install": "docker-compose run --rm web yarn install",
+    "dev:tailwindcss:watch": "docker-compose exec web yarn build:css --watch",
+    "dev:esbuild:watch": "docker-compose exec web yarn build --watch",
+    "dev:containers:list": "docker ps",
+    "dev:debug": "rdbg -A 5000 --nonstop",
+    "dev:lint": "docker-compose run --rm web bundle exec rubocop",
+    "dev:lint:autocorrect": "docker-compose run --rm web bundle exec rubocop -a",
+    "dev:ngrok": "ngrok http new_project_dev_app_port",
+
+    "db:seed": "docker-compose run --rm web rake db:seed",
+    "db:drop": "docker-compose run --rm web rake db:drop",
+    "db:migrate": "docker-compose run --rm web rake db:migrate",
+    "db:migrate:status": "docker-compose run --rm web rake db:migrate:status",
+    "db:create": "docker-compose run --rm web rake db:create",
+    "db:reset": "yarn db:drop && yarn db:create && yarn db:migrate && yarn db:seed",
+    "db:setup": "docker-compose run --rm web rake db:setup",
+
+    "test:app:up": "docker-compose stop cypress-web && docker-compose up -d cypress-web",
+    "test:app:coverage:up": "docker-compose stop cypress-web && MEASURE_TEST_COVERAGE=true docker-compose up -d cypress-web",
+    "test:migrate": "docker-compose run --rm web bundle exec rake db:test:prepare",
+    "test:all": "yarn test:coverage:clear && yarn test:unit && yarn test:cypress:headless",
+    "test:unit": "docker-compose run --rm cypress-web bundle exec rspec spec/ --exclude-pattern 'spec/cypress/*'",
+    "test:cypress:interactive": "yarn test:app:up && RAILS_ENV=test yarn run cypress open --project ./spec",
+    "test:cypress:headless": "yarn test:app:coverage:up && yarn test:cypress:run && docker-compose stop cypress-web",
+    "test:cypress:run": "RAILS_ENV=test yarn run cypress run --project ./spec",
+    "test:coverage:clear": "rm -rf coverage",
+    "test:coverage:open": "open ./coverage/index.html",
+
+    "deploy:check:staging": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap staging deploy:check'",
+    "deploy:staging": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap staging deploy'",
+    "deploy:staging:rollback": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap staging deploy:rollback'",
+    "deploy:staging:restart": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap staging puma:restart'",
+    "deploy:check:production": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap production deploy:check'",
+    "deploy:production": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap production deploy'",
+    "deploy:production:rollback": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap production deploy:rollback'",
+    "deploy:production:restart": "docker-compose run --rm web bash -c 'eval `ssh-agent -s` && ssh-add ~/.ssh/id_rsa && bundle exec cap production puma:restart'"
+  },
+  "devDependencies": {
+    "cypress": "^12.7.0"
+  }
+}

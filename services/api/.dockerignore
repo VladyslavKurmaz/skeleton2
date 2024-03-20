@@ -1,0 +1,12 @@
+# dockerignore
+.idea
+.git
+.gitignore
+.gitattributes
+README.md
+docker-compose-local.yml
+.env
+.gitlab-ci.yml
+Dockerfile*
+templates/
+node_modules/
