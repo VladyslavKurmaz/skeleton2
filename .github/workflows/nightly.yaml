@@ -1,0 +1,21 @@
+name: "Nightly Build"
+on:
+  schedule:
+    - cron: "0 5 * * *"
+
+jobs:
+  pipeline:
+    permissions:
+      deployments: write
+      contents: read
+    uses: ./.github/workflows/base.yaml
+    with:
+      group: dev
+      environment: dev01
+      tests: api, ui
+    secrets:
+      ENVIRONMENT_FILE_ROOT: ${{ secrets.ENVIRONMENT_FILE_ROOT }}
+      ENVIRONMENT_FILE_GROUP: ${{ secrets.ENVIRONMENT_FILE_DEV }}
+      ENVIRONMENT_FILE_ENV: ${{ secrets.ENVIRONMENT_FILE_DEV_DEV01 }}
+#      SONAR_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

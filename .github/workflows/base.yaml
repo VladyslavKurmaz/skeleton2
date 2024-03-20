@@ -1,0 +1,155 @@
+name: "Base"
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        description: Ref to compare changes
+      group:
+        type: string
+        description: Group
+        default: "dev"
+      environment:
+        type: string
+        description: Environment
+        default: "ci"
+      tests:
+        type: string
+        description: Tests
+        default: "unit, spec, static"
+      build:
+        type: boolean
+        description: build
+        default: false
+      package-n-upload:
+        type: boolean
+        description: Package & Upload
+        default: false
+      construct:
+        type: boolean
+        description: Construct Infrastructure
+        default: false
+      deploy:
+        type: boolean
+        description: Deploy
+        default: false
+      undeploy:
+        type: boolean
+        description: Undeploy
+        default: false
+      deconstruct:
+        type: boolean
+        description: Deconstruct Infrastruture
+        default: false
+    secrets:
+      ENVIRONMENT_FILE_ROOT:
+        required: true
+      ENVIRONMENT_FILE_GROUP:
+        required: true
+      ENVIRONMENT_FILE_ENV:
+        required: true
+#      SONAR_GITHUB_TOKEN:
+#        required: true
+#      SONAR_TOKEN:
+#        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt update && sudo apt install -y sshuttle
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.9.0"
+
+      - run: npm i -g tln-cli@1.100.0
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure environment
+        env:
+          ENVIRONMENT_FILE_ROOT: ${{ secrets.ENVIRONMENT_FILE_ROOT }}
+          ENVIRONMENT_FILE_GROUP: ${{ secrets.ENVIRONMENT_FILE_GROUP }}
+          ENVIRONMENT_FILE_ENV: ${{ secrets.ENVIRONMENT_FILE_ENV }}
+        run: |
+          df -h
+          echo '{"detach": true}' > '.tlnrc'
+          echo ${{ inputs.environment }} > .context
+          echo "$ENVIRONMENT_FILE_ROOT" > .env
+          mkdir secrets
+          echo "$ENVIRONMENT_FILE_GROUP" > secrets/.env.${{ inputs.group }}
+          echo "$ENVIRONMENT_FILE_ENV" > secrets/.env.${{ inputs.group }}.${{ inputs.environment }}
+          ls -la secrets
+          tln configure-ci:prereq
+
+      - name: Init
+        run: |
+          tln init-all -- --reference ${{ inputs.ref }}
+
+      - name: Format & Unit test
+        if: ${{ contains(inputs.tests, 'unit') }}
+        run: |
+          tln format-all:unit-test-all -- --reference ${{ inputs.ref }}
+
+      - name: Spec test
+        if: ${{ contains(inputs.tests, 'spec') }}
+        run: |
+          #tln up platform
+          docker ps -a
+          tln spec-test-all -- --reference ${{ inputs.ref }}
+
+#      - name: SonarCloud Scan
+#        uses: SonarSource/sonarcloud-github-action@master
+#        if: ${{ contains(inputs.tests, 'static') }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.SONAR_GITHUB_TOKEN }} # Needed to get PR information, if any
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Build
+        if: ${{ inputs.build }}
+        run: |
+          tln build-all -- --reference ${{ inputs.ref }}
+
+      - name: Package and Upload
+        if: ${{ inputs.package-n-upload }}
+        run: |
+          tln package-all:publish-all -- --reference ${{ inputs.ref }}
+
+      - name: Construct
+        if: ${{ inputs.construct }}
+        run: |
+          tln configure-provider:configure-group:construct-env:construct-app
+          tln configure-provider:configure-group -- --apply --auto-approve
+          #tln construct platform/env/aws -- --backend cloud --init --apply --auto-approve --layers network
+          tln connect -- --ci
+          tln construct-env:construct-app -- --apply --auto-approve
+
+      - name: Deploy
+        if: ${{ inputs.deploy }}
+        run: |
+          tln undeploy-app
+          #sleep 30
+          tln deploy-app
+
+      - name: Run API tests
+        if: ${{ contains(inputs.tests, 'api') }}
+        run: |
+          tln e2e
+
+      - name: Run UI tests
+        if: ${{ contains(inputs.tests, 'ui') }}
+        run: |
+          tln e2e
+
+      - name: Undeploy
+        if: ${{ inputs.undeploy }}
+        run: tln undeploy-app
+
+      - name: Deconstruct
+        if: ${{ inputs.deconstruct }}
+        run: |
+          tln deconstruct-app:deconstruct-env

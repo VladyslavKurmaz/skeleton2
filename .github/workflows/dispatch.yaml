@@ -1,0 +1,56 @@
+name: "Dispatch"
+
+on:
+  workflow_dispatch:
+    inputs:
+      group:
+        type: string
+        description: Group
+        default: dev
+      environment:
+        type: string
+        description: Environment
+      tests:
+        type: string
+        description: Tests unit, spec, static, api, ui
+      build:
+        type: boolean
+        description: Build
+      package-n-upload:
+        type: boolean
+        description: Package & Upload
+      construct:
+        type: boolean
+        description: Construct Infrastructure
+      deploy:
+        type: boolean
+        description: Deploy App
+      undeploy:
+        type: boolean
+        description: Undeploy App
+      deconstruct:
+        type: boolean
+        description: Deconstruct Infrastruture
+
+jobs:
+  pipeline:
+    permissions:
+      deployments: write
+      contents: read
+    uses: ./.github/workflows/base.yaml
+    with:
+      group: ${{ inputs.group }}
+      environment: ${{ inputs.environment }}
+      tests: ${{ inputs.tests }}
+      build: ${{ inputs.build }}
+      package-n-upload: ${{ inputs.package-n-upload }}
+      construct: ${{ inputs.construct }}
+      deploy: ${{ inputs.deploy }}
+      undeploy: ${{ inputs.undeploy }}
+      deconstruct: ${{ inputs.deconstruct }}
+    secrets:
+      ENVIRONMENT_FILE_ROOT: ${{ secrets.ENVIRONMENT_FILE_ROOT }}
+      ENVIRONMENT_FILE_GROUP: ${{ secrets[format('ENVIRONMENT_FILE_{0}', github.event.inputs.group)] }}
+      ENVIRONMENT_FILE_ENV: ${{ secrets[format('ENVIRONMENT_FILE_{0}_{1}', github.event.inputs.group, github.event.inputs.environment)] }}
+#      SONAR_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
